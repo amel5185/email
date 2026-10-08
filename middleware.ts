@@ -1,11 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
-export async function middleware() {
+export function middleware(_req: NextRequest) {
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: [
-    "/((?!api|_next|favicon.ico).*)",
-  ],
+  matcher: ["/((?!_next|favicon.ico).*)"],
 };
