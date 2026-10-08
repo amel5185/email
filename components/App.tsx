@@ -1,7 +1,13 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { api, I, Account, Config, Hist } from "./ui";
+import {
+  api,
+  I,
+  Account,
+  Config,
+  Hist,
+} from "./ui";
 import SendView from "./SendView";
 import {
   AccountsView,
@@ -13,70 +19,112 @@ const NAV = [
   ["send", "paper-plane", "Kirim"],
   ["configs", "sliders", "Konfigurasi"],
   ["accounts", "at", "Akun Gmail"],
-  ["history", "clock-rotate-left", "Riwayat"],
+  [
+    "history",
+    "clock-rotate-left",
+    "Riwayat",
+  ],
 ] as const;
 
 export default function App() {
-  const [view, setView] = useState<string>("send");
-  const [open, setOpen] = useState(false);
-  const [dark, setDark] = useState(false);
+  const [view, setView] =
+    useState<string>("send");
 
-  const [accounts, setA] = useState<Account[]>([]);
-  const [configs, setC] = useState<Config[]>([]);
-  const [history, setH] = useState<Hist[]>([]);
+  const [open, setOpen] =
+    useState(false);
 
-  const [loaded, setL] = useState(false);
+  const [dark, setDark] =
+    useState(false);
+
+  const [accounts, setA] =
+    useState<Account[]>([]);
+
+  const [configs, setC] =
+    useState<Config[]>([]);
+
+  const [history, setH] =
+    useState<Hist[]>([]);
+
+  const [loaded, setL] =
+    useState(false);
+
   const [toasts, setT] = useState<
     { id: number; m: string }[]
   >([]);
-  const [online, setOn] = useState(true);
 
-  const toast = useCallback((m: string) => {
-    const id = Date.now() + Math.random();
+  const [online, setOn] =
+    useState(true);
 
-    setT((t) => [...t, { id, m }]);
+  const toast = useCallback(
+    (m: string) => {
+      const id =
+        Date.now() + Math.random();
 
-    setTimeout(() => {
-      setT((t) =>
-        t.filter((x) => x.id !== id)
-      );
-    }, 3500);
-  }, []);
-
-  const reload = useCallback(async () => {
-    try {
-      const [a, c, h] = await Promise.all([
-        api("/api/accounts"),
-        api("/api/configs"),
-        api("/api/history"),
+      setT((t) => [
+        ...t,
+        {
+          id,
+          m,
+        },
       ]);
 
-      setA(a);
-      setC(c);
-      setH(h);
-      setOn(true);
-    } catch {
-      setOn(false);
-      toast("Terjadi kesalahan.");
-    }
+      setTimeout(() => {
+        setT((t) =>
+          t.filter(
+            (x) => x.id !== id
+          )
+        );
+      }, 3500);
+    },
+    []
+  );
 
-    setL(true);
-  }, [toast]);
+  const reload = useCallback(
+    async () => {
+      try {
+        const [a, c, h] =
+          await Promise.all([
+            api("/api/accounts"),
+            api("/api/configs"),
+            api("/api/history"),
+          ]);
+
+        setA(a);
+        setC(c);
+        setH(h);
+        setOn(true);
+      } catch {
+        setOn(false);
+        toast("Terjadi kesalahan.");
+      }
+
+      setL(true);
+    },
+    [toast]
+  );
 
   useEffect(() => {
     setDark(
-      document.documentElement.dataset.theme ===
-        "dark"
+      document.documentElement
+        .dataset.theme === "dark"
     );
 
     reload();
   }, [reload]);
 
   const theme = () => {
-    const t = dark ? "light" : "dark";
+    const t = dark
+      ? "light"
+      : "dark";
 
-    document.documentElement.dataset.theme = t;
-    localStorage.setItem("mc-theme", t);
+    document.documentElement.dataset.theme =
+      t;
+
+    localStorage.setItem(
+      "mc-theme",
+      t
+    );
+
     setDark(!dark);
   };
 
@@ -86,8 +134,9 @@ export default function App() {
   };
 
   const title =
-    NAV.find((n) => n[0] === view)?.[2] ??
-    "Kirim";
+    NAV.find(
+      (n) => n[0] === view
+    )?.[2] ?? "Kirim";
 
   const p = {
     toast,
@@ -99,14 +148,18 @@ export default function App() {
     <div className="app">
       <div
         className={
-          "scrim" + (open ? " open" : "")
+          "scrim" +
+          (open ? " open" : "")
         }
-        onClick={() => setOpen(false)}
+        onClick={() =>
+          setOpen(false)
+        }
       />
 
       <aside
         className={
-          "side" + (open ? " open" : "")
+          "side" +
+          (open ? " open" : "")
         }
       >
         <div className="brand">
@@ -115,18 +168,24 @@ export default function App() {
         </div>
 
         <nav className="nav">
-          {NAV.map(([k, ic, l]) => (
-            <button
-              key={k}
-              className={
-                view === k ? "on" : ""
-              }
-              onClick={() => go(k)}
-            >
-              <I n={ic} />
-              {l}
-            </button>
-          ))}
+          {NAV.map(
+            ([k, ic, l]) => (
+              <button
+                key={k}
+                className={
+                  view === k
+                    ? "on"
+                    : ""
+                }
+                onClick={() =>
+                  go(k)
+                }
+              >
+                <I n={ic} />
+                {l}
+              </button>
+            )
+          )}
         </nav>
 
         <div className="stat">
@@ -134,11 +193,13 @@ export default function App() {
             <span
               className="dot"
               style={{
-                background: online
-                  ? undefined
-                  : "var(--er)",
+                background:
+                  online
+                    ? undefined
+                    : "var(--er)",
               }}
             />
+
             {online
               ? "Aplikasi aktif"
               : "Tidak terhubung"}
@@ -159,7 +220,9 @@ export default function App() {
           <button
             className="ib burger"
             aria-label="Menu"
-            onClick={() => setOpen(true)}
+            onClick={() =>
+              setOpen(true)
+            }
           >
             <I n="bars" />
           </button>
@@ -172,7 +235,11 @@ export default function App() {
             onClick={theme}
           >
             <I
-              n={dark ? "sun" : "moon"}
+              n={
+                dark
+                  ? "sun"
+                  : "moon"
+              }
             />
           </button>
         </header>
