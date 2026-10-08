@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
-import { getSession } from "./auth";
 
 export const json = (d: unknown, s = 200) =>
   NextResponse.json(d, { status: s });
@@ -15,13 +14,6 @@ export function guard(
     req: Request,
     ctx: { params: { id: string } }
   ) => {
-    if (!(await getSession())) {
-      return json(
-        { error: "Tidak diizinkan." },
-        401
-      );
-    }
-
     try {
       return await fn(req, ctx);
     } catch (e) {
@@ -40,4 +32,4 @@ export function guard(
       );
     }
   };
-}
+        }
