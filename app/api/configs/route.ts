@@ -1,8 +1,12 @@
 import { z } from "zod";
-import { json } from "@/lib/api";
-import { read, write, Config } from "@/lib/store";
+import { guard, json } from "@/lib/api";
+import {
+  read,
+  write,
+  Config,
+} from "@/lib/store";
 
-export const configSchema = z.object({
+const configSchema = z.object({
   name: z
     .string()
     .trim()
@@ -11,7 +15,11 @@ export const configSchema = z.object({
 
   recipients: z
     .array(
-      z.string().trim().toLowerCase().email()
+      z
+        .string()
+        .trim()
+        .toLowerCase()
+        .email()
     )
     .max(10),
 
@@ -23,25 +31,33 @@ export const configSchema = z.object({
       s.replace(/[\r\n]+/g, " ")
     ),
 
-  body: z.string().max(5000),
+  body: z
+    .string()
+    .max(5000),
 });
 
-export const GET = async () => {
-  return json(
-    await read<Config[]>("configs", [])
-  );
-};
+export const GET = guard(
+  async () =>
+    json(
+      await read<Config[]>(
+        "configs",
+        []
+      )
+    )
+);
 
-export const POST = async (req: Request) => {
-  try {
-    const d = configSchema.parse(
-      await req.json()
-    );
+export const POST = guard(
+  async (req) => {
+    const d =
+      configSchema.parse(
+        await req.json()
+      );
 
-    const all = await read<Config[]>(
-      "configs",
-      []
-    );
+    const all =
+      await read<Config[]>(
+        "configs",
+        []
+      );
 
     if (all.length >= 50) {
       return json(
@@ -63,21 +79,11 @@ export const POST = async (req: Request) => {
       updatedAt: now,
     };
 
-    await write("configs", [
-      ...all,
-      c,
-    ]);
+    await write(
+      "configs",
+      [...all, c]
+    );
 
     return json(c, 201);
-  } catch (e: any) {
-    return json(
-      {
-        error:
-          e?.issues?.[0]?.message ||
-          e?.message ||
-          "Data tidak valid.",
-      },
-      400
-    );
   }
-};
+);
