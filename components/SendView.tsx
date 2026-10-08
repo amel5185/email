@@ -46,7 +46,11 @@ export default function SendView({
   const total = chips.length * per;
 
   function add(t: string) {
-    const parts = t.split(/[,;\s]+/).filter(Boolean);
+    const parts = t
+      .split(/[,;\s]+/)
+      .map((x) => x.trim())
+      .filter(Boolean);
+
     const good: string[] = [];
 
     for (const p of parts) {
@@ -151,31 +155,37 @@ export default function SendView({
 
           if (e.t === "sending") {
             setProg((p) =>
-              p && {
-                ...p,
-                to: e.to,
-              }
+              p
+                ? {
+                    ...p,
+                    to: e.to,
+                  }
+                : p
             );
           }
 
           if (e.t === "p") {
             setProg((p) =>
-              p && {
-                ...p,
-                done: e.done,
-                ok: e.ok,
-                fail: e.fail,
-                err: e.error || p.err,
-              }
+              p
+                ? {
+                    ...p,
+                    done: e.done,
+                    ok: e.ok,
+                    fail: e.fail,
+                    err: e.error || p.err,
+                  }
+                : p
             );
           }
 
           if (e.t === "end") {
             setProg((p) =>
-              p && {
-                ...p,
-                end: true,
-              }
+              p
+                ? {
+                    ...p,
+                    end: true,
+                  }
+                : p
             );
           }
         }
@@ -184,7 +194,7 @@ export default function SendView({
       toast("Pengiriman selesai.");
     } catch (e: any) {
       toast(
-        e.message ||
+        e?.message ||
           "Terjadi kesalahan."
       );
 
@@ -297,23 +307,23 @@ export default function SendView({
 
             <input
               value={draft}
-              placeholder="email@contoh.com, pisahkan dengan koma"
-              onChange={(e) =>
-                /[,;]$/.test(
-                  e.target.value
-                )
-                  ? add(e.target.value)
-                  : setDraft(
-                      e.target.value
-                    )
-              }
-              onBlur={() =>
-                draft && add(draft)
-              }
+              placeholder="email@contoh.com, pisahkan dengan koma atau spasi"
+              onChange={(e) => {
+                const value = e.target.value;
+
+                if (/[,;\s]$/.test(value)) {
+                  add(value);
+                } else {
+                  setDraft(value);
+                }
+              }}
+              onBlur={() => {
+                if (draft.trim()) {
+                  add(draft);
+                }
+              }}
               onKeyDown={(e) => {
-                if (
-                  e.key === "Enter"
-                ) {
+                if (e.key === "Enter") {
                   e.preventDefault();
                   add(draft);
                 }
@@ -423,8 +433,7 @@ export default function SendView({
                         10,
                         Math.max(
                           1,
-                          +e.target.value ||
-                            1
+                          +e.target.value || 1
                         )
                       )
                     )
@@ -452,8 +461,7 @@ export default function SendView({
                       10,
                       Math.max(
                         1,
-                        +e.target.value ||
-                          1
+                        +e.target.value || 1
                       )
                     )
                   )
@@ -596,9 +604,7 @@ export default function SendView({
             <span>Penerima</span>
             <span>{chips.length}</span>
 
-            <span>
-              Per penerima
-            </span>
+            <span>Per penerima</span>
             <span>{per}</span>
 
             <span>Total email</span>
@@ -611,4 +617,4 @@ export default function SendView({
       )}
     </>
   );
-}
+                      }
